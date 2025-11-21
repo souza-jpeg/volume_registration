@@ -4,7 +4,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 
 
-from read import find_nc_files, extract_central_cube
+from irtk.read import find_nc_files, extract_central_cube
 
 path_do_database = R"D:\data_br_petro"
 

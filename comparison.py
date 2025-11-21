@@ -1,7 +1,7 @@
 import itk
 import numpy as np
 import matplotlib.pyplot as plt
-from read import read_nc_file, lazzy_read_nc_file
+from irtk.read import read_nc_file
 from img_registration.rigid import register_volumes, simple_register_volumes
 from img_registration.metrics import evaluate_registration
 
@@ -9,9 +9,9 @@ fixed_path = R"D:\data_br_petro\P01\P01_dimensions_186_168_150_resolution_64000n
 moving_path = R"D:\data_br_petro\P01\P01_dimensions_1488_1340_1200_resolution_08000nm.nc"
 # moving_path = R"D:\volume_registration\central_volumes_50\P01\P01_vol_high_central.npy"
 
-fixed = lazzy_read_nc_file(fixed_path, "data")
+fixed = read_nc_file(fixed_path, "data")
 # moving = np.load(moving_path)
-moving = lazzy_read_nc_file(moving_path, "data")
+moving = read_nc_file(moving_path, "data")
 
 
 

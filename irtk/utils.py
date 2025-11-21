@@ -2,7 +2,24 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from read import read_nc_file
+from irtk.read import read_nc_file
+
+
+def save_all_volumes_slices_in_path(
+    volume: np.ndarray, 
+    path_to_output: str
+):
+    os.makedirs(path_to_output, exist_ok=True)
+    volume = np.asarray(volume)
+
+    for i in range(volume.shape[0]):
+        slice_i = volume[i]
+
+        plt.imsave(
+            os.path.join(path_to_output, f"slice_{i:04d}.png"),
+            slice_i,
+            cmap="gray"
+        )
 
 def plot_middle_slices(
     volume_paths: dict, 
@@ -44,45 +61,29 @@ def plot_middle_slices(
 def convert_uint16_to_uint8(
     volume: np.ndarray
 ) -> np.ndarray:
-    """
-    Converte do dtype do  de uint16 para uint8.
-
-    Args:
-        volume (np.ndarray): Volume numpy com dtype uint16.
-
-    Returns:
-        (np.ndarray): Volume numpy com dtype uint8.
-    """
     return cv2.convertScaleAbs(volume, alpha=(255.0/float(volume.max())))
 
 def get_depth_channel_first(
     volume: np.ndarray
 ) -> np.ndarray:
-    """
-    Muda a dimensão de profundidade (eixo Z) de um volume
-    numpy para a primeira posição do seu shape.
-
-    Args:
-        volume (np.ndarray): Volume com shape (Width, Height, Depth).
-
-    Returns:
-        (np.ndarray): Volume com shape (Depth, Width, Height).
-    """
     return np.transpose(volume, (2, 0, 1))
-
 
 def convert_volume_to_rgb(
     volume: np.ndarray
 ) -> np.ndarray:
-    """
-    Converte um volume em grayscale para RGB;
-
-    Args:
-        volume (np.ndarray): Volume numpy em grayscale;
-
-    Returns:
-        (np.ndarray): Volume numpy em RGB;
-    """
     if volume.ndim != 3:
         raise ValueError(f"Wait a 3D array with shape (D,H,W), but got {volume.shape}")
     return np.repeat(volume[..., None], 3, axis=-1)
+
+def get_volume_information(
+    volume: np.ndarray
+):
+    print("Shape do volume: ", volume.shape)
+    print("Dtype do volume: ", volume.dtype)
+    print(f"Intensidades do volume: Entre {volume.min()} e {volume.max()}")
+
+def get_pytorch_gpu_status():
+    import torch
+    print("Pytorch GPU recognized? ", torch.cuda.is_available())
+    print("Pytorch Device Count: ", torch.cuda.device_count())
+    print("First Pytorch device name:", torch.cuda.get_device_name(0))
