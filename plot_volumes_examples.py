@@ -4,7 +4,8 @@ import xarray as xr
 import matplotlib.pyplot as plt
 
 
-from read import find_nc_files, plot_middle_slices
+from irtk.read import find_nc_files
+from irtk.utils import plot_middle_slices
 
 
 path_do_database = R"E:\data_br_petro"
