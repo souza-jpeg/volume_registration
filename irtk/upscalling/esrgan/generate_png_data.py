@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import xarray as xr
+from PIL import Image
 from sklearn.model_selection import train_test_split
 
 def create_dataset_folders(base_path):
@@ -62,4 +63,16 @@ def get_dataset_random_split(
     
     return train_split, test_split
 
+def central_crop(
+    img_array: np.ndarray, 
+    crop_shape: tuple, 
+):
+    h, w = img_array.shape[:2]
+    ch, cw = crop_shape
+    start_h = (h - ch) // 2
+    start_w = (w - cw) // 2
+    end_h = start_h + ch
+    end_w = start_w + cw
+    cropped = img_array[start_h:end_h, start_w:end_w]
+    return cropped
 

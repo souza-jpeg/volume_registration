@@ -5,13 +5,27 @@ import torch
 from torchvision.models import vgg19
 
 
+# class FeatureExtractor(nn.Module):
+#     def __init__(self):
+#         super(FeatureExtractor, self).__init__()
+#         vgg19_model = vgg19(weights='DEFAULT')
+#         self.vgg19_54 = nn.Sequential(*list(vgg19_model.features.children())[:35])
+
+#     def forward(self, img):
+#         return self.vgg19_54(img)
+    
 class FeatureExtractor(nn.Module):
     def __init__(self):
         super(FeatureExtractor, self).__init__()
-        vgg19_model = vgg19(pretrained=True)
+        vgg19_model = vgg19(weights="DEFAULT")
         self.vgg19_54 = nn.Sequential(*list(vgg19_model.features.children())[:35])
 
+        # for param in self.vgg19_54.parameters():
+        #     param.requires_grad = False
+
     def forward(self, img):
+        if img.shape[1] == 1:
+            img = img.repeat(1, 3, 1, 1)
         return self.vgg19_54(img)
     
 
@@ -113,7 +127,7 @@ class Discriminator(nn.Module):
             return layers
         
         layers = []
-        in_filters = 3
+        in_filters = in_channels
         for i, out_filters in enumerate([64, 128, 256, 512]):
             layers.extend(discriminator_block(in_filters, out_filters, first_block=(i == 0)))
             in_filters = out_filters
