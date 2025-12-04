@@ -1,8 +1,34 @@
 import os
 import cv2
+import torch
+from torchvision.utils import save_image
 import numpy as np
 import matplotlib.pyplot as plt
 from irtk.read import read_nc_file
+
+
+
+def save_images_float32_normalized(
+    data: torch.Tensor, 
+    target: torch.Tensor,
+    epoch: int, 
+    i: int,
+    path_teste = str
+):
+    batch_size = data.shape[0]
+
+    for j in range(batch_size):
+        lr_img = data[j]   
+        hr_img = target[j] 
+
+        lr_img_norm = (lr_img.float() / 65535.).clamp(0,1)
+        hr_img_norm = (hr_img.float() / 65535.).clamp(0,1)
+
+        lr_name = f"epoch{epoch}_batch{i}_idx{j}_LR.png"
+        hr_name = f"epoch{epoch}_batch{i}_idx{j}_HR.png"
+
+        save_image(lr_img_norm, os.path.join(os.path.join(path_teste, 'lr', lr_name)))
+        save_image(hr_img_norm, os.path.join(os.path.join(path_teste, 'hr', hr_name)))
 
 
 def save_all_volumes_slices_in_path(

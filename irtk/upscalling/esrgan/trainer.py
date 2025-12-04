@@ -3,7 +3,6 @@ import os
 import numpy as np
 
 from torchvision.utils import save_image, make_grid
-
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
@@ -23,14 +22,15 @@ lr=0.0002
 hr_height=1024
 hr_width=1024
 # sample_interval=100
-sample_interval=2
+sample_interval=10
 # residual_blocks=23
 residual_blocks=10
-# warmup_batches=500
-warmup_batches=2
+warmup_batches=500
+# warmup_batches=2
 lambda_adv=0.1
 lambda_pixel=1
 lambda_content=1
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -58,7 +58,7 @@ optimizer_G = torch.optim.Adam(generator.parameters(), lr=lr)
 optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=lr)
 
 # train_set = TrainDatasetFromFolder('ersgan_dataset/train_HR', crop_size=128, upscale_factor=8)
-train_set = TrainDatasetFromFolder(R'D:\volume_registration\ersgan_dataset\train_HR\SRF_8x\target_mini', crop_size=1024, upscale_factor=8)
+train_set = TrainDatasetFromFolder(R'D:\volume_registration\ersgan_dataset\train_HR\SRF_8x\target', crop_size=1024, upscale_factor=8)
 train_loader = DataLoader(dataset=train_set, num_workers=0, batch_size=4, shuffle=True)
 
 # ----------
@@ -67,11 +67,10 @@ train_loader = DataLoader(dataset=train_set, num_workers=0, batch_size=4, shuffl
 
 for epoch in range(epoch, n_epochs):
     for i, (data, target) in enumerate(train_loader):
-
         batches_done = epoch * len(train_loader) + i
 
-        imgs_lr = Variable(data.type(torch.Tensor)).to(device)
-        imgs_hr = Variable(target.type(torch.Tensor)).to(device)
+        imgs_lr = data.to(device, dtype=torch.float32) / 65535.0
+        imgs_hr = target.to(device, dtype=torch.float32) / 65535.0
 
         # ------------------
         #  Train Generator
@@ -147,7 +146,7 @@ for epoch in range(epoch, n_epochs):
             imgs_lr = nn.functional.interpolate(imgs_lr, scale_factor=8, mode='bicubic')
             img_grid = torch.clamp(torch.cat((imgs_lr, gen_hr, imgs_hr), -1), min=0, max=1)
             save_image(img_grid, '../../../images/training/%d.png' % batches_done, nrow=1, normalize=True)
-            save_image(imgs_hr, '../../../images/training/test.png', nrow=1, normalize=True)
+            # save_image(imgs_hr, '../../../images/training/test.png', nrow=1, normalize=True)
 
     torch.save(generator.state_dict(), '../../../saved_models/generator_%d.pth' % epoch)
     torch.save(discriminator.state_dict(), '../../../saved_models/discriminator_%d.pth' % epoch)
